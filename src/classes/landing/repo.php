@@ -9,6 +9,8 @@ use Bitrix24\Exceptions\Bitrix24Exception;
  */
 class Repo extends Bitrix24Entity
 {
+    const REGISTER_METHOD_NAME = 'landing.repo.register';
+
     /**
      * Register new block in repository
      *
@@ -48,13 +50,40 @@ class Repo extends Bitrix24Entity
         }*/
 
         $fullResult = $this->client->call(
-            'landing.repo.register',
+            self::REGISTER_METHOD_NAME,
             array(
                 'code' => $code,
                 'fields' => $fields,
                 'manifest' => $manifest
             )
         );
+        return $fullResult;
+    }
+
+    public function batchRegistration (array $blocks){
+        $fullResult = array(
+            'result' => array(),
+            'errors' => array()
+        );
+        foreach($blocks as $block){
+            $this->client->addBatchCall(self::REGISTER_METHOD_NAME, $block, function($result) use (&$response){
+                if(isset($result['error']) && count($result['error']) > 0){
+                    $fullResult['errors'][] = array(
+                        'type' => '',
+                        'message' => $result['error']['error_description']
+                    );
+                }else{
+                    $fullResult['result'][] = $result['result'];
+                }
+            });
+        }
+
+        try {
+            $this->client->processBatchCalls();
+        }catch (\Exception $e){
+            $fullResult['errors'][] = $e;
+        }
+
         return $fullResult;
     }
 }
