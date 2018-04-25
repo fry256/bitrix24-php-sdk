@@ -81,7 +81,7 @@ class Repo extends Bitrix24Entity
         try {
             $this->client->processBatchCalls();
         }catch (\Exception $e){
-            $fullResult['errors'][] = $e;
+            $fullResult['errors'][] = $e->getMessage();
         }
 
         return $fullResult;
