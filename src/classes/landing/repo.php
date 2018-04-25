@@ -66,7 +66,7 @@ class Repo extends Bitrix24Entity
             'errors' => array()
         );
         foreach($blocks as $block){
-            $this->client->addBatchCall(self::REGISTER_METHOD_NAME, $block, function($result) use (&$response){
+            $this->client->addBatchCall(self::REGISTER_METHOD_NAME, $block, function($result) use (&$fullResult){
                 if(isset($result['error']) && count($result['error']) > 0){
                     $fullResult['errors'][] = array(
                         'type' => '',
