@@ -146,4 +146,53 @@ class Block extends Bitrix24Entity
 
         return $fullResult;
     }
+
+    /**
+     * Method for update block attributes
+     *
+     * @param $lid
+     * @param $block
+     * @param array $attrs
+     * @return array
+     * @throws Bitrix24Exception
+     * @throws \Bitrix24\Exceptions\Bitrix24ApiException
+     * @throws \Bitrix24\Exceptions\Bitrix24EmptyResponseException
+     * @throws \Bitrix24\Exceptions\Bitrix24IoException
+     * @throws \Bitrix24\Exceptions\Bitrix24MethodNotFoundException
+     * @throws \Bitrix24\Exceptions\Bitrix24PaymentRequiredException
+     * @throws \Bitrix24\Exceptions\Bitrix24PortalDeletedException
+     * @throws \Bitrix24\Exceptions\Bitrix24PortalRenamedException
+     * @throws \Bitrix24\Exceptions\Bitrix24SecurityException
+     * @throws \Bitrix24\Exceptions\Bitrix24TokenIsExpiredException
+     * @throws \Bitrix24\Exceptions\Bitrix24TokenIsInvalidException
+     * @throws \Bitrix24\Exceptions\Bitrix24WrongClientException
+     */
+    public function updateAttrs($lid, $block, array $attrs){
+
+        if(is_null($lid))
+        {
+            throw new Bitrix24Exception('lid id is null');
+        }
+
+        if(is_null($block))
+        {
+            throw new Bitrix24Exception('block id is null');
+        }
+
+        if(empty($attrs))
+        {
+            throw new Bitrix24Exception('There is no attributes to update');
+        }
+
+        $fullResult = $this->client->call(
+            'landing.block.updateattrs',
+            array(
+                'lid' => $lid,
+                'block' => $block,
+                'data' => $attrs
+            )
+        );
+
+        return $fullResult;
+    }
 }
