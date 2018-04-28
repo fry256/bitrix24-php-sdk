@@ -9,6 +9,8 @@ use Bitrix24\Exceptions\Bitrix24Exception;
  */
 class Landing extends Bitrix24Entity
 {
+    const ADD_BLOCK_METHOD_NAME = 'landing.landing.addblock';
+
     /**
      * Add new page to system
      *
@@ -80,7 +82,7 @@ class Landing extends Bitrix24Entity
         }
 
         $fullResult = $this->client->call(
-            'landing.landing.addblock',
+            self::ADD_BLOCK_METHOD_NAME,
             array(
                 'lid' => $lid,
                 'fields' => $fields,
@@ -128,6 +130,39 @@ class Landing extends Bitrix24Entity
                 'block' => $block,
             )
         );
+
+        return $fullResult;
+    }
+
+    /**
+     * Add blocks to the page as batch
+     *
+     * @param array $blocks
+     * @return array
+     */
+    public function batchAddBlocks (array $blocks){
+        $fullResult = array(
+            'result' => array(),
+            'errors' => array()
+        );
+        foreach($blocks as $block){
+            $this->client->addBatchCall(self::ADD_BLOCK_METHOD_NAME, $block, function($result) use (&$fullResult){
+                if(isset($result['error']) && count($result['error']) > 0){
+                    $fullResult['errors'][] = array(
+                        'type' => '',
+                        'message' => $result['error']['error_description']
+                    );
+                }else{
+                    $fullResult['result'][] = $result['result'];
+                }
+            });
+        }
+
+        try {
+            $this->client->processBatchCalls();
+        }catch (\Exception $e){
+            $fullResult['errors'][] = $e->getMessage();
+        }
 
         return $fullResult;
     }
